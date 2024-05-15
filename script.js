@@ -86,6 +86,10 @@ let cartItemCount = 0
 // Init product element array
 const productElements = []
 
+//Event listenters for filtering
+filtersContainer.addEventListener("change", filterProducts)
+searchInput.addEventListener("input", filterProducts)
+
 // Loop over products and create an element
 products.forEach((product) => {
 	const productElement = createProductElement(product)
@@ -115,33 +119,59 @@ function createProductElement(product) {
   <p class="text-xl">${product.name}</p>
   <strong>$${product.price.toLocaleString()}</strong>`
 
-  productElement.querySelector('.status').addEventListener('click', updateCart)
+	productElement.querySelector(".status").addEventListener("click", updateCart)
 
 	return productElement
 }
 
 // Add or remove item from cart
 function updateCart(e) {
-    const statusEl = e.target;
+	const statusEl = e.target
 
-    if (statusEl.classList.contains('added')) {
-        // Remove from cart
-        statusEl.classList.remove('added')
-        statusEl.innerText = 'Add to cart'
-        statusEl.classList.remove('bg-red-600')
-        statusEl.classList.add('bg-gray-800')
+	if (statusEl.classList.contains("added")) {
+		// Remove from cart
+		statusEl.classList.remove("added")
+		statusEl.innerText = "Add to cart"
+		statusEl.classList.remove("bg-red-600")
+		statusEl.classList.add("bg-gray-800")
 
-        cartItemCount--;
-    } else {
-        // Add to cart
-        statusEl.classList.add('added')
-        statusEl.innerText = 'Remove from cart'
-        statusEl.classList.remove('bg-gray-800')
-        statusEl.classList.add('bg-red-600')
+		cartItemCount--
+	} else {
+		// Add to cart
+		statusEl.classList.add("added")
+		statusEl.innerText = "Remove from cart"
+		statusEl.classList.remove("bg-gray-800")
+		statusEl.classList.add("bg-red-600")
 
-        cartItemCount++;
-    }
+		cartItemCount++
+	}
 
-    // Update cart item count
-    cartCount.innerText = cartItemCount.toString()
+	// Update cart item count
+	cartCount.innerText = cartItemCount.toString()
+}
+
+// Filter products by checkboxes and search input
+function filterProducts() {
+	// Get search term
+	const searchTerm = searchInput.value.trim().toLowerCase()
+	// Get checked categories
+	const checkedCategories = Array.from(checkboxes)
+		.filter((check) => check.checked)
+		.map((check) => check.id)
+
+        // Loop over products and check for matches
+        productElements.forEach((productElement, index) => {
+            const product = products[index]
+
+            //Check to see if product matches the search or the checked categories
+            const matchesSearchTerm = product.name.toLowerCase().includes(searchTerm)
+            const isInCheckedCategory = checkedCategories.length === 0 || checkedCategories.includes(product.category)
+
+            // Show or hide product based on matches
+            if (matchesSearchTerm && isInCheckedCategory) {
+                productElement.classList.remove('hidden')
+            } else {
+                productElement.classList.add('hidden')
+            }
+        })
 }
